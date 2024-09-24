@@ -14,9 +14,11 @@ import (
 
 func usage() {
 	fmt.Fprintln(os.Stderr, ""+
-		`usage: grep [-i] pattern [file...]
+		`usage: grep [-i] pattern file|directory...
 
-If grep does not find pattern in any of the files it exits with status code 1.`)
+Search files, or recursively search directories, for matches of pattern.
+If grep does not find any file that matches pattern it exits with status
+code 1.`)
 	flag.PrintDefaults()
 	os.Exit(2)
 }
@@ -70,11 +72,18 @@ func Main(stdout, stderr io.Writer, args ...string) (retcode int) {
 // walkDir walks dir, which can be a relative or absolute path.
 func walkDir(dir string) (paths []string) {
 	fsys := os.DirFS(".")
+
+	// prefix ensures that no matter the modifications to dir,
+	// the printed path looks like what the user submitted
 	prefix := ""
-	if filepath.IsAbs(dir) {
+	switch {
+	case filepath.IsAbs(dir):
 		fsys = os.DirFS("/")
 		dir = dir[1:]
 		prefix = "/"
+	case dir[:2] == "./":
+		dir = filepath.Clean(dir)
+		prefix = "./"
 	}
 
 	fs.WalkDir(fsys, dir, func(path string, d fs.DirEntry, err error) error {
