@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -58,6 +59,18 @@ func TestMain(t *testing.T) {
 			``,
 		},
 		{
+			"dot",
+			[]string{"foo", "."},
+			0,
+			`
+			testdata/1.txt:3:foo
+			testdata/a.txt:2:foo
+			testdata/c/c.txt:1:foo
+			testdata/d/d/d.txt:3:foo
+			`,
+			``,
+		},
+		{
 			"dot prefixed relative path",
 			[]string{"foo", "./testdata/c"},
 			0,
@@ -77,14 +90,14 @@ func TestMain(t *testing.T) {
 				t.Fatalf("got code %d; want %d", code, tc.code)
 			}
 
-			got := outbuf.String()
-			want := preprocess(tc.out)
+			got := process(outbuf.String())
+			want := process(tc.out)
 			if got != want {
 				t.Errorf("\ngot:\n%s\nwant:\n%s", got, want)
 			}
 
 			got = errbuf.String()
-			want = preprocess(tc.err)
+			want = process(tc.err)
 			if got != want {
 				t.Errorf("\ngot:\n%s\nwant:\n%s", got, want)
 			}
@@ -106,7 +119,7 @@ func TestMain(t *testing.T) {
 		}
 
 		got := outbuf.String()
-		want := preprocess(path + ":1:foo\n")
+		want := process(path + ":1:foo\n")
 		if got != want {
 			t.Errorf("\ngot:\n%s\nwant:\n%s", got, want)
 		}
@@ -119,8 +132,13 @@ func TestMain(t *testing.T) {
 	})
 }
 
-func preprocess(s string) string {
-	s = strings.TrimLeft(s, " \n")
+// remove any reference to this test itself if a runner
+// tries to find a match in the "." directory
+var reMainTest = regexp.MustCompile(`main_test\.go.+`)
+
+func process(s string) string {
+	s = reMainTest.ReplaceAllString(s, "")
+	s = strings.TrimLeft(s, " \n\t")
 	s = strings.ReplaceAll(s, "\t", "")
 	return s
 }

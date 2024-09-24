@@ -81,7 +81,7 @@ func walkDir(dir string) (paths []string) {
 		fsys = os.DirFS("/")
 		dir = dir[1:]
 		prefix = "/"
-	case dir[:2] == "./":
+	case len(dir) > 1 && dir[:2] == "./":
 		dir = filepath.Clean(dir)
 		prefix = "./"
 	}
