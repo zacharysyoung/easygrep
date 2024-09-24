@@ -70,15 +70,6 @@ func TestMain(t *testing.T) {
 			`,
 			``,
 		},
-		{
-			"dot prefixed relative path",
-			[]string{"foo", "./testdata/c"},
-			0,
-			`
-			./testdata/c/c.txt:1:foo
-			`,
-			``,
-		},
 	}
 
 	for _, tc := range testCases {

@@ -71,26 +71,11 @@ func Main(stdout, stderr io.Writer, args ...string) (retcode int) {
 
 // walkDir walks dir, which can be a relative or absolute path.
 func walkDir(dir string) (paths []string) {
-	fsys := os.DirFS(".")
-
-	// prefix ensures that no matter the modifications to dir,
-	// the printed path looks like what the user submitted
-	prefix := ""
-	switch {
-	case filepath.IsAbs(dir):
-		fsys = os.DirFS("/")
-		dir = dir[1:]
-		prefix = "/"
-	case len(dir) > 1 && dir[:2] == "./":
-		dir = filepath.Clean(dir)
-		prefix = "./"
-	}
-
-	fs.WalkDir(fsys, dir, func(path string, d fs.DirEntry, err error) error {
+	filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		fmt.Printf("path=%s d=%v\n", path, d)
 		if d.IsDir() {
 			return nil
 		}
-		path = prefix + path
 		paths = append(paths, path)
 		return nil
 	})
