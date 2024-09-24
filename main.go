@@ -17,8 +17,8 @@ func usage() {
 		`usage: grep [-i] pattern file|directory...
 
 Search files, or recursively search directories, for matches of pattern.
-If grep does not find any file that matches pattern it exits with status
-code 1.`)
+pattern will be parsed as an re2 regexp.  If grep does not find any file
+that matches pattern it exits with status code 1.`)
 	flag.PrintDefaults()
 	os.Exit(2)
 }
