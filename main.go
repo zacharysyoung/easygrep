@@ -72,14 +72,12 @@ func Main(stdout, stderr io.Writer, args ...string) (retcode int) {
 // walkDir walks dir, which can be a relative or absolute path.
 func walkDir(dir string) (paths []string) {
 	filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
-		fmt.Printf("path=%s d=%v\n", path, d)
 		if d.IsDir() {
 			return nil
 		}
 		paths = append(paths, path)
 		return nil
 	})
-
 	return paths
 }
 
